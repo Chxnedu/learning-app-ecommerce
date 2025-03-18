@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-db
+  labels:
+    app: ecommerce
+    function: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      function: database
+  template:
+    metadata:
+      labels:
+        app: ecommerce
+        function: database
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: db-storage
+        - mountPath: /docker-entrypoint-initdb.d/
+          name: config-volume
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MARIADB_ROOT_PASSWORD
+        - name: MARIADB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MARIADB_DATABASE
+        - name: MARIADB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: MARIADB_USER
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MARIADB_PASSWORD
+      volumes:
+      - name: db-storage
+        persistentVolumeClaim:
+          claimName: db-pvc
+      - name: config-volume
+        configMap:
+          name: db-init-script
