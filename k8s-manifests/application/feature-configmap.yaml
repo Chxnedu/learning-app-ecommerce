@@ -3,4 +3,7 @@ kind: ConfigMap
 metadata:
   name: feature-toggle-config
 data:
-  FEATURE_DARK_MODE: "true"
+<<<<<<< HEAD
+=======
+  FEATURE_DARK_MODE: "false"
+>>>>>>> 08ff76c39b994f0b869ba56faef644041759b761
