@@ -47,3 +47,10 @@ spec:
             configMapKeyRef:
               name: feature-toggle-config
               key: FEATURE_DARK_MODE
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "800m"
