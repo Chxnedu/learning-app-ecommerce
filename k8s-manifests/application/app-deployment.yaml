@@ -47,6 +47,18 @@ spec:
             configMapKeyRef:
               name: feature-toggle-config
               key: FEATURE_DARK_MODE
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "200Mi"
