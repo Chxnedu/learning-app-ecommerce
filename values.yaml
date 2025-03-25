@@ -276,6 +276,8 @@ primary:
   ## @param primary.name Name of the primary database (eg primary, master, leader, ...)
   ##
   name: primary
+
+  replicaCount: 1
   ## @param primary.command Override default container command on MariaDB Primary container(s) (useful when using custom images)
   ##
   command: []
@@ -526,7 +528,7 @@ primary:
   ## @param primary.livenessProbe.successThreshold Success threshold for livenessProbe
   ##
   livenessProbe:
-    enabled: true
+    enabled: false
     initialDelaySeconds: 120
     periodSeconds: 10
     timeoutSeconds: 1
@@ -540,7 +542,7 @@ primary:
   ## @param primary.readinessProbe.successThreshold Success threshold for readinessProbe
   ##
   readinessProbe:
-    enabled: true
+    enabled: false
     initialDelaySeconds: 30
     periodSeconds: 10
     timeoutSeconds: 1
@@ -722,7 +724,7 @@ secondary:
   name: secondary
   ## @param secondary.replicaCount Number of MariaDB secondary replicas
   ##
-  replicaCount: 1
+  replicaCount: 0
   ## @param secondary.command Override default container command on MariaDB Secondary container(s) (useful when using custom images)
   ##
   command: []
