@@ -600,7 +600,7 @@ primary:
     existingClaim: ""
     ## @param primary.persistence.subPath Subdirectory of the volume to mount at
     ##
-    subPath: "/var/lib/mysql"
+    subPath: ""
     ## @param primary.persistence.storageClass MariaDB primary persistent volume storage Class
     ## If defined, storageClassName: <storageClass>
     ## If set to "-", storageClassName: "", which disables dynamic provisioning
