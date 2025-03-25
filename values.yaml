@@ -375,7 +375,7 @@ primary:
   ## @param primary.podLabels Extra labels for MariaDB primary pods
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
   ##
-  podLabels: { app: ecommerce, function: database }
+  podLabels: {}
   ## @param primary.podAffinityPreset MariaDB primary pod affinity preset. Ignored if `primary.affinity` is set. Allowed values: `soft` or `hard`
   ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
   ##
