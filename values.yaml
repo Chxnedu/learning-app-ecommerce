@@ -47,7 +47,7 @@ nameOverride: ""
 fullnameOverride: ""
 ## @param clusterDomain Default Kubernetes cluster domain
 ##
-clusterDomain: k8s-challenge.chxnedu.xyz
+clusterDomain: cluster.local
 ## @param commonAnnotations Common annotations to add to all MariaDB resources (sub-charts are not considered)
 ##
 commonAnnotations: {}
