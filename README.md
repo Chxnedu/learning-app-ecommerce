@@ -1,8 +1,8 @@
 # Introduction
 
-This challenge leverages Kubernetes and Containerization using Docker to deploy a php e-commerce website. Docker is used to encapsulate the application and its environment, ensuring it runs consistently everywhere, and Kubernetes automates deployment, scaling and management of the application.
+This challenge leverages Kubernetes and Containerization using Docker to deploy a PHP e-commerce website. Docker encapsulates the application and its environment, ensuring it runs consistently everywhere, and Kubernetes automates deployment, scaling, and management of the application.
 
-I decided to try this project after taking the [Certified Kubernetes Administrator Course](https://www.udemy.com/course/certified-kubernetes-administrator-with-practice-tests/?srsltid=AfmBOorl2NfsH0jy-wtTytR-OMwW40iBy9EXBB4acngtO32OodEM3ciT) from KodeKloud to test and validate my skills after all I learned. This article will cover how I approached the challenge, the decisions I took and the reasons for them, and all the new things I learned during the course of this challenge.
+I decided to try this project after taking the [Certified Kubernetes Administrator Course](https://www.udemy.com/course/certified-kubernetes-administrator-with-practice-tests/?srsltid=AfmBOorl2NfsH0jy-wtTytR-OMwW40iBy9EXBB4acngtO32OodEM3ciT) from KodeKloud to test and validate my skills after all I learned. This article will cover how I approached the challenge, the decisions I made, and all the new things I learned during this challenge.
 
 ---
 
@@ -21,7 +21,7 @@ I decided to try this project after taking the [Certified Kubernetes Administrat
 
 ## The Web App
 
-The application uses a two-tier architecture; the client tier and data tier (database). The application will be built into an image using a Dockerfile, while the database will use the default MariaDB image.
+The application uses a two-tier architecture; the client tier and the data tier (database). The application will be built into an image using a Dockerfile, while the database will use the default MariaDB image.
 I wrote a Dockerfile for the application, following best practices.
 
 ```Dockerfile
@@ -52,7 +52,7 @@ I utilized environment variables to configure the database name, user and passwo
 For the database initialization script, I was torn between using an entrypoint script or ConfigMaps.
 Up until that point, I did not know that ConfigMaps can be created from files. I went with the ConfigMap method to get hands on with that process.
 
-To create the configmap from the sql file
+To create the ConfigMap from the SQL file
 
 ```bash
 kubectl create configmap db-init-script --from-file=db-load-script.sql
@@ -77,7 +77,7 @@ Setting up a Kubernetes cluster on AWS is simplified with kOps. A few prerequisi
   ```
 - AWS CLI installed and configured using the kOps iAM user credentials
 
-With these prerequisites in place, create the cluser
+With these prerequisites in place, create the cluster
 
 ```bash
 export KOPS_STATE_STORE=s3://<bucket-name>
@@ -99,7 +99,7 @@ kubectl get node
 
 # Deploying the Application
 
-After my cluster was setup, I proceeded to deploy the application and database. I started with the database and I wrote the following manifests for it;
+After my cluster was set up, I proceeded to deploy the application and database. I started with the database and I wrote the following manifests for it;
 
 - [database-service](https://github.com/Chxnedu/learning-app-ecommerce/blob/master/k8s-manifests/db/db-service.yaml); a simple database service of the default type ClusterIP. the database is only accessible from within the cluster
 - [db-secrets](https://github.com/Chxnedu/learning-app-ecommerce/blob/master/k8s-manifests/db/db-secrets.yaml); a Secrets object to store secrets like passwords
@@ -149,7 +149,7 @@ data:
 
 ## Exposing the Application
 
-I exposed the application using a `LoadBalancer` Service. This Service type creates a Load balancer on AWS and outputs the url which the application can be accessed on when `kubectl get service` is run. My issue with this implementation is that the load balancer was using HTTP and not HTTPS, which I had to change.
+I exposed the application using a `LoadBalancer` Service. This Service type creates a Load balancer on AWS and outputs the URL which the application can be accessed on when `kubectl get service` is run. My issue with this implementation is that the load balancer was using HTTP and not HTTPS, which I had to change.
 
 After digging into how to enable SSL termination on my application, I discovered how `annotations` can be used to connect an AWS Certificate Manager (ACM) Certificate to a Kubernetes LoadBalancer Service. To enable this, you need to have a domain with an ACM Certificate, and include the following annotations in your Service manifest;
 
@@ -166,7 +166,7 @@ annotations:
 ## Challenges
 
 The major challenge I ran into was my application not being able to connect to the database. I spent hours debugging and trying to find out a solution to my issue, but nothing was working. It seemed almost impossible to resolve this issue, and just as I was about to give up, I took one last look at my database service file and realized I used the wrong selector.
-When your deployment is not working as it's supposed to, the first place to look should be your configuration files. Don't be like me that spent hours entering the pods and looking for solutions when the solution to the problem was right there in my face.
+When your deployment is not working as it's supposed to, the first place to look should be your configuration files. Don't be like me who spent hours entering the pods and looking for solutions when the solution to the problem was right there in my face.
 
 # Implementing Scalability and Reliability
 
@@ -174,7 +174,7 @@ To ensure the application can scale according to traffic and have zero-downtime 
 
 ## Configuring HPA for Scaling
 
-I implemented a HPA that targets 50% CPU utilization, with a minimum of 2 and a maximun of 5 pods using this command
+I implemented an HPA that targets 50% CPU utilization, with a minimum of 2 and a maximum of 5 pods using this command
 
 ```bash
 kubectl autoscale deployment app --cpu-percent=50 --min=2 --max=10
@@ -217,11 +217,11 @@ You will notice that the pods are destroyed and replaced sequentially, and not a
 
 # Conclusion and Next Steps
 
-With this project I was able to deploy a sample e-commerce application and database to a live kubernetes environment, utilizing various kubernetes objects and concepts like PersistentVolumes, ConfigMaps, Secrets, HPA, Probes.
+With this project I was able to deploy a sample e-commerce application and database to a live Kubernetes environment, utilizing various Kubernetes objects and concepts like PersistentVolumes, ConfigMaps, Secrets, HPA, and Probes.
 
 This challenge has given me much needed experience with setting up kubernetes clusters, deploying and managing applications on kubernetes, and implementing scalability and reliability for applications.
 
-I plan to make the follwing enhancements to this project going forward;
+I plan to make the following enhancements to this project going forward;
 
 - Helm Packaging
 - Utilizing Vault for managing secrets
