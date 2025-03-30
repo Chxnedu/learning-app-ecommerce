@@ -7,5 +7,5 @@ data:
   {{- range $key, $val := .data }}
   {{ $key }}: {{ $val | quote }}
   {{- end }}
-  ---
+---
 {{- end }}
