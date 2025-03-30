@@ -44,6 +44,33 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configmaps.name }}
+                  key: DB_HOST
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configmaps.name }}
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configmaps.name }}
+                  key: DB_NAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ecommerce-app.fullname" . }}
+                  key: DB_PASSWORD
+            - name: FEATURE_DARK_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configmaps.name }}
+                  key: FEATURE_DARK_MODE
+          {{- with .Values.command }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

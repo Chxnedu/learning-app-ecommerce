@@ -4,6 +4,10 @@ metadata:
   name: {{ include "ecommerce-app.fullname" . }}
   labels:
     {{- include "ecommerce-app.labels" . | nindent 4 }}
+  annotations: 
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: {{ .Values.service.sslCertARN }}
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -11,5 +15,9 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    - port: {{ .Values.service.port2 }}
+      targetPort: http
+      protocol: TCP
+      name: https
   selector:
     {{- include "ecommerce-app.selectorLabels" . | nindent 4 }}
