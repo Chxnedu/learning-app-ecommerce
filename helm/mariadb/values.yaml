@@ -74,11 +74,11 @@ diagnosticMode:
   ## @param diagnosticMode.command Command to override all containers in the deployment
   ##
   command:
-  - sleep
+    - sleep
   ## @param diagnosticMode.args Args to override all containers in the deployment
   ##
   args:
-  - infinity
+    - infinity
 ## @param serviceBindings.enabled Create secret for service binding (Experimental)
 ## Ref: https://servicebinding.io/service-provider/
 ##
@@ -478,7 +478,7 @@ primary:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
-      drop: [ "ALL" ]
+      drop: ["ALL"]
     seccompProfile:
       type: "RuntimeDefault"
   ## MariaDB primary container's resource requests and limits
@@ -490,7 +490,7 @@ primary:
   ## @param primary.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if primary.resources is set (primary.resources is recommended for production).
   ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
   ##
-  resourcesPreset: "nano"
+  resourcesPreset: "none"
   ## @param primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
   ## Example:
   ## resources:
@@ -618,7 +618,7 @@ primary:
     ## @param primary.persistence.accessModes MariaDB primary persistent volume access Modes
     ##
     accessModes:
-    - ReadWriteOnce
+      - ReadWriteOnce
     ## @param primary.persistence.size MariaDB primary persistent volume size
     ##
     size: 8Gi
@@ -909,7 +909,7 @@ secondary:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
     capabilities:
-      drop: [ "ALL" ]
+      drop: ["ALL"]
     seccompProfile:
       type: "RuntimeDefault"
   ## MariaDB secondary container's resource requests and limits
@@ -1045,7 +1045,7 @@ secondary:
     ## @param secondary.persistence.accessModes MariaDB secondary persistent volume access Modes
     ##
     accessModes:
-    - ReadWriteOnce
+      - ReadWriteOnce
     ## @param secondary.persistence.size MariaDB secondary persistent volume size
     ##
     size: 8Gi
@@ -1217,7 +1217,7 @@ passwordUpdateJob:
     readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
     capabilities:
-      drop: [ "ALL" ]
+      drop: ["ALL"]
     seccompProfile:
       type: "RuntimeDefault"
   ## Configure Pods Security Context
@@ -1459,7 +1459,7 @@ metrics:
     readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
     capabilities:
-      drop: [ "ALL" ]
+      drop: ["ALL"]
     seccompProfile:
       type: "RuntimeDefault"
   ## Mysqld Prometheus exporter resource requests and limits
