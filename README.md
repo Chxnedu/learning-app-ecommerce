@@ -227,6 +227,12 @@ The pods terminate and restart sequentially, rather than all at once. This ensur
 
 ---
 
+# Packaging with Helm
+
+I have never used Helm before, so I had to learn about it first before I could implement it. The best way to learn is to learn by building, so after taking a YouTube course on Helm and going through the documentation, I jumped right in.
+
+---
+
 # Conclusion and Next Steps
 
 Through this project, I deployed a sample e-commerce application and database to a live Kubernetes environment, utilizing various Kubernetes objects and concepts like PersistentVolumes, ConfigMaps, Secrets, HPA, and Probes.
