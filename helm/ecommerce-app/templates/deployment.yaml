@@ -70,7 +70,6 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}-config
                   key: FEATURE_DARK_MODE
-          {{- with .Values.command }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
