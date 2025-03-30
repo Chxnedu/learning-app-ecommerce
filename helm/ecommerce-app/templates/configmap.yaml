@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-config
+  name: {{ .name }}
 data:
   {{- range $key, $val := .data }}
   {{ $key }}: {{ $val | quote }}

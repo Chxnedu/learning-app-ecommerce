@@ -48,17 +48,17 @@ spec:
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-config
+                  name: {{ .Values.configmaps.name }}
                   key: DB_HOST
             - name: DB_USER
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-config
+                  name: {{ .Values.configmaps.name }}
                   key: DB_USER
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-config
+                  name: {{ .Values.configmaps.name }}
                   key: DB_NAME
             - name: DB_PASSWORD
               valueFrom:
@@ -68,7 +68,7 @@ spec:
             - name: FEATURE_DARK_MODE
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-config
+                  name: {{ .Values.configmaps.name }}
                   key: FEATURE_DARK_MODE
           {{- with .Values.livenessProbe }}
           livenessProbe:

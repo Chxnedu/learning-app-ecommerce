@@ -79,7 +79,7 @@ ingress:
   #      - chart-example.local
 
 configmaps:
-  - name: app-config
+    name: app-config
     data:
       DB_HOST: "db-release-1-mariadb"
       DB_USER: "ecomuser"
