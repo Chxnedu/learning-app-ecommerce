@@ -81,7 +81,7 @@ ingress:
 configmaps:
   - name: app-config
     data:
-      DB_HOST:
+      DB_HOST: "db-release-1-mariadb"
       DB_USER: "ecomuser"
       DB_NAME: "ecomdb"
       FEATURE_DARK_MODE: true
