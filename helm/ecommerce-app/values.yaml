@@ -78,6 +78,9 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+env:
+  CONFIG_NAME: "app-config"
+
 configmaps:
     name: app-config
     data:
