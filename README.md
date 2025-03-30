@@ -4,6 +4,8 @@ The Kubernetes Resume Challenge leverages Kubernetes and Containerization using 
 
 I took on this project after completing the [Certified Kubernetes Administrator Course](https://www.udemy.com/course/certified-kubernetes-administrator-with-practice-tests/?srsltid=AfmBOorl2NfsH0jy-wtTytR-OMwW40iBy9EXBB4acngtO32OodEM3ciT) from KodeKloud to test and validate my skills. This article details my approach to the challenge, the decisions I made, and all the new things I learned during this challenge.
 
+The fully deployed site is available at https://k8s.chxnedu.xyz
+
 ---
 
 # Understanding the Challenge
