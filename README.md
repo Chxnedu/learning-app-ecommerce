@@ -1,8 +1,8 @@
 # Introduction
 
-This challenge leverages Kubernetes and Containerization using Docker to deploy a php e-commerce website. Docker is used to encapsulate the application and its environment, ensuring it runs consistently everywhere, and Kubernetes automates deployment, scaling and management of the application.
+The Kubernetes Resume Challenge leverages Kubernetes and Containerization using Docker to deploy a PHP E-Commerce website. Docker encapsulates the application and its environment, ensuring it runs consistently everywhere, and Kubernetes automates deployment, scaling, and management of the application.
 
-I decided to try this project after taking the Certified Kubernetes Administrator course on KodeKloud, to test and validate my skills and all I learned. This article will cover how I approached the challenge, the decisions I took and the reasons for them, and all the new things I learned during the course of this challenge.
+I took on this project after completing the [Certified Kubernetes Administrator Course](https://www.udemy.com/course/certified-kubernetes-administrator-with-practice-tests/?srsltid=AfmBOorl2NfsH0jy-wtTytR-OMwW40iBy9EXBB4acngtO32OodEM3ciT) from KodeKloud to test and validate my skills. This article details my approach to the challenge, the decisions I made, and all the new things I learned during this challenge.
 
 ---
 
@@ -21,8 +21,8 @@ I decided to try this project after taking the Certified Kubernetes Administrato
 
 ## The Web App
 
-The application uses a two-tier architecture; the client tier and data tier (database). The application will be built into an image using a Dockerfile, while the database will use the default MariaDB image.
-I wrote a Dockerfile for the application, following best practices.
+The application uses a two-tier architecture; the client tier and the data tier (database). I built the application into an image using a Dockerfile, while the database uses the default MariaDB image.
+I designed a Dockerfile for the application, following best practices.
 
 ```Dockerfile
 # base image used for the application
@@ -38,7 +38,7 @@ COPY /app /var/www/html/
 EXPOSE 80
 ```
 
-Build the image and test it locally to ensure it works before pushing it to Docker Hub.
+You should build the image and test it locally to ensure it works before pushing it to Docker Hub.
 
 ```bash
 docker build -t chxnedu/ecommerce-app:v1 .
@@ -48,24 +48,26 @@ docker push chxnedu/ecommerce-app:v1
 
 ## The Database
 
-I utilized environment variables to configure the database name, user and password with the MariaDB image.
-For the database initialization script, I was torn between using an entrypoint script or ConfigMaps.
-Up until that point, I did not know that ConfigMaps can be created from files. I went with the ConfigMap method to get hands on with that process.
+I configured environment variables to configure the database name, user and password with the MariaDB image.
+For the database initialization script, I debated using an Entrypoint script versus ConfigMaps.
+Up until that point, I did not know ConfigMaps could be created from files. I opted for the ConfigMap method to get hands on with that process.
 
-To create the configmap from the sql file
+I generated the ConfigMap from the SQL file by running
 
 ```bash
 kubectl create configmap db-init-script --from-file=db-load-script.sql
 ```
+
+---
 
 # Setting Up Kubernetes Cluster
 
 For my cluster, I went with AWS and [kOps](https://kops.sigs.k8s.io/).
 Setting up a Kubernetes cluster on AWS is simplified with kOps. A few prerequisites need to be in place;
 
-- a Route53 hosted zone
-- an S3 bucket
-- an iAM user and credentials with the following permissions;
+- Route53 hosted zone
+- S3 bucket
+- IAM user and credentials with the following permissions;
   ```
   AmazonEC2FullAccess
   AmazonRoute53FullAccess
@@ -77,7 +79,7 @@ Setting up a Kubernetes cluster on AWS is simplified with kOps. A few prerequisi
   ```
 - AWS CLI installed and configured using the kOps iAM user credentials
 
-With these prerequisites in place, create the cluser
+With these prerequisites in place, create the cluster
 
 ```bash
 export KOPS_STATE_STORE=s3://<bucket-name>
@@ -89,7 +91,7 @@ kops update cluster --name=<subdomain.domain.com> --yes
 
 ## Configuring kubectl
 
-For kubectl to work with the cluster, the following commands were run
+I ran the following commands to configure kubectl to work with the cluster
 
 ```bash
 kops export kubecfg --admin
@@ -97,9 +99,11 @@ kops export kubecfg --admin
 kubectl get node
 ```
 
+---
+
 # Deploying the Application
 
-After my cluster was setup, I proceeded to deploy the application and database. I started with the database and I wrote the following manifests for it;
+After my cluster was set up, I proceeded to deploy the application and database. I started with the database and wrote the following manifests for it;
 
 - [database-service](https://github.com/Chxnedu/learning-app-ecommerce/blob/master/k8s-manifests/db/db-service.yaml); a simple database service of the default type ClusterIP. the database is only accessible from within the cluster
 - [db-secrets](https://github.com/Chxnedu/learning-app-ecommerce/blob/master/k8s-manifests/db/db-secrets.yaml); a Secrets object to store secrets like passwords
@@ -121,10 +125,113 @@ I deployed each object using
 kubectl apply -f <file-name>.yaml
 ```
 
-Where `file-name` is replaced by the name of the file.
+Replace `file-name` with the actual file name.
+
+## Managing Environment Variables and Secrets
+
+I leveraged ConfigMaps and Secrets to manage environment variables for the database and application. I wrote a ConfigMap manifest
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <configmap-name>
+data:
+  key: "value"
+```
+
+and a Secret manifest
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <secret-name>
+data:
+  key: base64Value
+```
+
+## Exposing the Application
+
+I exposed the application using a `LoadBalancer` Service. This Service type creates a Load balancer on AWS and outputs the URL which the application can be accessed on when `kubectl get service` is run. My issue with this implementation is that the load balancer was using HTTP and not HTTPS, so I had to change it.
+
+After digging into how to enable SSL termination on my application, I discovered how `annotations` can be used to connect an AWS Certificate Manager (ACM) Certificate to a Kubernetes LoadBalancer Service. To enable this, you need to have a domain with an ACM Certificate, and include the following annotations in your Service manifest;
+
+```yaml
+annotations:
+  # the backend talks over HTTP
+  service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+  # use the arn of your certificate
+  service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:{region}:{user-id}:certificate/{id}
+  # https port
+  service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+```
 
 ## Challenges
 
-The first challenge I ran into was my application not being able to connect to the database. I spent hours debugging and trying to find out a solution to my issue, but nothing was working. It seemed almost impossible to resolve this issue, and just as I was about to give up, I took one last look at my database service file and realized I used the wrong selector.
+The biggest challenge I faced was that my application couldn't connect to the database. I spent hours debugging and troubleshooting to find out a solution to my issue, but nothing was working. Resolving this issue seemed almost impossible, and just as I was about to give up, I took one last look at my database service file and realized I had used the wrong selector.
+When your deployment is not working as it's supposed to, avoid spending hours inside pods searching for fixes when the answer is in your configuration files. Always check the files first.
 
-When your deployment is not working as it's supposed to, the first place to look should be your configuration files. Don't be like me that spent hours entering the pods and looking for solutions when the issue was so simple.
+---
+
+# Implementing Scalability and Reliability
+
+I implemented Horizontal Pod Autoscaler (HPA), liveness and readiness probes, and rolling updates to ensure the application scales with traffic and remains available during updates.
+
+## Configuring HPA for Scaling
+
+I implemented an HPA that targets 50% CPU utilization, with a minimum of 2 and a maximum of 5 pods using this command
+
+```bash
+kubectl autoscale deployment app --cpu-percent=50 --min=2 --max=10
+kubectl get hpa # to monitor the autoscaling
+```
+
+## Setting up Liveness and Readiness probes
+
+I implemented liveness and readiness probes in the deployment manifest to monitor pod health.
+
+```yaml
+livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+```
+
+## Rolling Updates for Zero-Downtime
+
+I updated the application image and changed the deploment manifest to include the new image version. To apply the changes;
+
+```bash
+kubectl apply -f app-deployment.yaml
+
+# to monitor the rolling update process
+kubectl rollout status deployment/app
+```
+
+The pods terminate and restart sequentially, rather than all at once. This ensures your application is always available.
+
+---
+
+# Automating Deployment with CI/CD
+
+---
+
+# Conclusion and Next Steps
+
+Through this project, I deployed a sample e-commerce application and database to a live Kubernetes environment, utilizing various Kubernetes objects and concepts like PersistentVolumes, ConfigMaps, Secrets, HPA, and Probes.
+
+This challenge significantly strengthened my experience in setting up Kubernetes clusters, deploying and managing applications on Kubernetes, and imlementing scalability and reliability.
+
+I plan to make the following enhancements to this project going forward;
+
+- Helm Packaging
+- Utilizing Vault for managing secrets
