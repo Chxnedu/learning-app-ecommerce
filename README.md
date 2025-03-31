@@ -223,10 +223,6 @@ The pods terminate and restart sequentially, rather than all at once. This ensur
 
 ---
 
-# Automating Deployment with CI/CD
-
----
-
 # Packaging with Helm
 
 Since I had never used Helm before, I first learned about it before implementing it. The best way to learn is to learn by building, so after completing a YouTube course on Helm and reading the documentation, I jumped right in. 
