@@ -229,7 +229,77 @@ The pods terminate and restart sequentially, rather than all at once. This ensur
 
 # Packaging with Helm
 
-I have never used Helm before, so I had to learn about it first before I could implement it. The best way to learn is to learn by building, so after taking a YouTube course on Helm and going through the documentation, I jumped right in.
+Since I had never used Helm before, I first learned about it before implementing it. The best way to learn is to learn by building, so after completing a YouTube course on Helm and reading the documentation, I jumped right in. 
+
+I need two charts for this application: the database chart and the application chart. 
+
+## Database Helm Chart
+
+For the database, I used the [Bitnami Mariadb chart](https://artifacthub.io/packages/helm/bitnami/mariadb). I first pulled the chart locally using
+```bash
+helm get oci://registry-1.docker.io/bitnamicharts/mariadb
+```
+This enabled me to take a better look at the chart and edit the `values.yaml` file to match my configuration. After making the necessary changes to the `values.yaml` file, I installed the chart
+```bash
+helm install db-release-1 mariadb
+```
+The database chart was installed successfully, now it was time to package the application with Helm.
+
+## Application Helm Chart
+
+I created the application chart from scratch and customized it as needed. I created the chart using 
+```bash
+helm create ecommerce-app
+```
+This created a default helm chart that needed to be configured to fit my needs. The first step I took was to look at the `templates/deployment.yaml` file. 
+It had most of the configurations I need for my application, except an `env` key for environment variables. Since my environment variables are handled with ConfigMaps and Secrets, I created `templates/configmap.yaml` and `templates/secrets.yaml`. 
+
+The `templates/configmap.yaml` file
+```yaml
+{{- range .Values.configmaps }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .name }}
+data:
+  {{- range $key, $val := .data }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end }}
+---
+{{- end }}
+```
+This configuration iterates over `configmaps` in `values.yaml` and creates a configmap for each entry. It then processes each key-value pair in `data` and outputs YAML. 
+
+The `templates/secrets.yaml` file
+```yaml
+piVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "ecommerce-app.fullname" . }}
+type: Opaque
+data:
+  DB_PASSWORD: {{ .Values.db.password }}
+```
+This configuration uses the base64 encoded secret from the `values.yaml` file.
+
+After creating these files, I added the configmaps and secrets to the `values.yaml` file.
+
+I also made a change to the `templates/service.yaml` file, by adding the annotations that will be used to enable SSL on my application.
+
+After implementing these changes, I verified my chart's syntax using
+```bash
+helm lint ecommerce-app
+```
+Then, I installed the chart and verified that the application was running.
+```bash
+helm install app-release-1 ecommerce-app
+
+helm list # to see all releases
+
+kubectl get service # to get the application URL
+```
+
+This challenge was both enjoyable and rewarding. Learining a new technology and applying it to a project felt satisfying. Helm makes managing Kubernetes manifests so much easier, as I need to only run one command to get everything running instead of creating multiple objects.
 
 ---
 
