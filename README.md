@@ -311,5 +311,4 @@ This challenge significantly strengthened my experience in setting up Kubernetes
 
 I plan to make the following enhancements to this project going forward;
 
-- Helm Packaging
 - Utilizing Vault for managing secrets
